@@ -21,6 +21,7 @@ public class GroovyHtmlConverterTest {
             GroovyShell shell = new GroovyShell(binding);
             shell.evaluate(result);
         } catch (CompilationFailedException e) {
+            System.out.println(result);
             fail(e.getMessage());
         }
         System.out.println(result);

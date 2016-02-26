@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
-if (binding.hasVariable("body")) {
-    <body>
+if (binding.hasVariable("body") || binding.hasVariable("<test>")) {
+    <body
+    class="${body}">
         if (body.length > 0 && body.length < 15) {
             ${body}
+            ${"test{}</test>"}
         }
     </body>
 }
