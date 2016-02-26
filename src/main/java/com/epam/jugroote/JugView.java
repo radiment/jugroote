@@ -1,5 +1,6 @@
 package com.epam.jugroote;
 
+import com.epam.jugroote.util.PropertyUtil;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
@@ -27,8 +28,9 @@ public class JugView {
         return this;
     }
 
-    public JugView prop(String name, Object value) {
-        binding.setProperty(name, value);
+    public JugView props(Object props) {
+        PropertyUtil.getPropertiesFor(props.getClass()).forEach(
+                (s, getter) -> binding.setVariable(s, getter.get(props)));
         return this;
     }
 }

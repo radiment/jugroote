@@ -9,7 +9,8 @@ public class TemplateEngineTest {
     private TemplateEngine engine = new TemplateEngine();
 
     @Test
-    public void testWriteTo() throws Exception {
+    public void testGet() throws Exception {
+
         JugView view = engine.get("simpleTest");
         assertNotNull(view);
     }
