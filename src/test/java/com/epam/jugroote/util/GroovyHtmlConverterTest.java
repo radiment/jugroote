@@ -2,7 +2,6 @@ package com.epam.jugroote.util;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.junit.Test;
 
 import java.io.Writer;
@@ -20,7 +19,7 @@ public class GroovyHtmlConverterTest {
             binding.setVariable("_writer", mock(Writer.class));
             GroovyShell shell = new GroovyShell(binding);
             shell.evaluate(result);
-        } catch (CompilationFailedException e) {
+        } catch (Exception e) {
             System.out.println(result);
             fail(e.getMessage());
         }
