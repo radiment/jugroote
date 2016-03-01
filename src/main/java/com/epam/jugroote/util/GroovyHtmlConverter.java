@@ -18,10 +18,6 @@ public class GroovyHtmlConverter {
         return s.builder.toString();
     }
 
-    private static void groovyCode(State s) {
-        s.spaceInsert().append();
-    }
-
     private static class State {
         InputStreamReader reader;
         StringBuilder builder;
@@ -68,6 +64,8 @@ public class GroovyHtmlConverter {
         }
 
         State spaceInsert(boolean reset) {
+            if (space == 0) return this;
+
             for (int i = 0; i < space; i++) {
                 builder.append(' ');
             }
@@ -96,12 +94,13 @@ public class GroovyHtmlConverter {
 
         boolean checkToken(Predicate<State> predicate) throws IOException {
             if (!oneRead()) {
+                spaceInsert();
                 builder.append(ch);
                 return false;
             }
             if (predicate.test(this)) return true;
 
-            token();
+            spaceInsert().token();
             return false;
         }
 
@@ -123,8 +122,8 @@ public class GroovyHtmlConverter {
             while (read()) {
                 if (ch == '>') {
                     return append().endTag();
-                } else if (ch == '$') {
-                    possibleEvaluation(this, true);
+                } else if (ch == '$' && checkToken(state -> state.ch == '{')) {
+                    readEvaluation();
                 } else {
                     appendIt();
                 }
@@ -142,15 +141,44 @@ public class GroovyHtmlConverter {
                     if (writeMode) {
                         finishWrite();
                     }
-                    if (ch == '$') {
-                        possibleEvaluation(this, false);
-
-                    } else if (ch == '"') {
-                        possibleString(this);
-
+                    if (ch == '$' && checkToken(state -> state.ch == '{')) {
+                        readEvaluation();
+                    } else if (ch == '"' && !last('\\')) {
+                        append().readString();
                     } else {
-                        groovyCode(this);
+                        spaceInsert().append();
                     }
+                }
+            }
+            return this;
+        }
+
+        State readString() throws IOException {
+            while (read()) {
+                spaceInsert().append();
+                if (ch == '"' && !last('\\')) {
+                    return this;
+                }
+            }
+            return this;
+        }
+
+        State readEvaluation() throws IOException {
+            if (writeMode) {
+                append("\")\n");
+            }
+            append("_writer.write(");
+            while (read()) {
+                if (ch == '"' && !last('\\')) {
+                    append().readString();
+                } else if (ch == '}' && !last('\\')) {
+                    append(")\n");
+                    if (writeMode) {
+                        startWrite();
+                    }
+                    return this;
+                } else {
+                    append();
                 }
             }
             return this;
@@ -182,70 +210,6 @@ public class GroovyHtmlConverter {
             return this;
         }
 
-        State startCode() {
-            if (tagStart) {
-                finishWrite();
-            }
-            return spaceInsert();
-        }
-
-    }
-
-    private static void possibleEvaluation(State s, boolean writeMode)
-            throws IOException {
-        if (!s.read()) return;
-
-        if (s.ch != '{') {
-            s.spaceInsert().append(s.prev).append();
-            return;
-        }
-
-        if (writeMode) {
-            s.append("\")\n");
-        }
-        s.append("_writer.write(");
-        while (s.read()) {
-            switch (s.ch) {
-                case '"':
-                    possibleString(s);
-                    break;
-                case '}': {
-                    s.append(")\n");
-                    if (writeMode) {
-                        s.append("_writer.write(\"");
-                    }
-                    return;
-                }
-                default:
-                    s.append();
-            }
-        }
-    }
-
-    private static void possibleString(State s)
-            throws IOException {
-        s.append();
-        if (s.last('\\')) {
-            return;
-        }
-        while (s.read()) {
-            s.append();
-            if (s.ch == '"' && !s.last('\\')) {
-                return;
-            }
-        }
-    }
-
-    private static void possibleTagProcess(State s)
-            throws IOException {
-        char startCh = s.ch;
-        if (!s.read()) return;
-
-        if (s.prev != startCh || s.ch == '\n' || s.ch == ' ') {
-            s.spaceInsert().append(startCh).append();
-            return;
-        }
-        s.readTag();
     }
 
 }
