@@ -9,11 +9,11 @@ import java.io.Writer;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class GroovyHtmlConverterTest {
+public class GrutConverterTest {
 
     @Test
     public void testConvertToScript() throws Exception {
-        String result = GroovyHtmlConverter.convertToScript(this.getClass().getResourceAsStream("/simpleTest.ghtml"));
+        String result = GrutConverter.convertToScript(this.getClass().getResourceAsStream("/simpleTest.gr"));
         try {
             Binding binding = new Binding();
             binding.setVariable("_writer", mock(Writer.class));

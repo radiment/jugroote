@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.function.Predicate;
 
-public class GroovyHtmlConverter {
+public class GrutConverter {
     public static String convertToScript(InputStream html) {
         State s = new State();
         s.reader = new InputStreamReader(html);
@@ -21,11 +21,11 @@ public class GroovyHtmlConverter {
     private static class State {
         InputStreamReader reader;
         StringBuilder builder;
+        StringBuilder indent = new StringBuilder();
         boolean tagStart;
         boolean writeMode;
         char ch;
         char prev;
-        int space;
         int read;
 
         State append(String str) {
@@ -53,8 +53,12 @@ public class GroovyHtmlConverter {
         }
 
         boolean read() throws IOException {
-            while (oneRead() && ch == ' ') {
-                space++;
+            return read(" \t");
+        }
+
+        boolean read(CharSequence skip) throws IOException {
+            while (oneRead() && skip.chars().anyMatch(value -> value == ch)) {
+                indent.append(ch);
             }
             return read != -1;
         }
@@ -64,13 +68,11 @@ public class GroovyHtmlConverter {
         }
 
         State spaceInsert(boolean reset) {
-            if (space == 0) return this;
+            if (indent.length() == 0) return this;
 
-            for (int i = 0; i < space; i++) {
-                builder.append(' ');
-            }
+            builder.append(indent);
             if (reset) {
-                space = 0;
+                indent.setLength(0);
             }
             return this;
         }
@@ -85,11 +87,13 @@ public class GroovyHtmlConverter {
             } else if (!last('\n')) {
                 builder.append('\n');
             }
+            indent.setLength(0);
             return this;
         }
 
         State token() {
-            return append(prev).append();
+            append(prev);
+            return ch == '\n' ? ln() : append();
         }
 
         boolean checkToken(Predicate<State> predicate) throws IOException {
@@ -122,9 +126,7 @@ public class GroovyHtmlConverter {
             while (read()) {
                 if (ch == '>') {
                     return append().endTag();
-                } else if (ch == '$' && checkToken(state -> state.ch == '{')) {
-                    readEvaluation();
-                } else {
+                } else if (!tryEvaluation()) {
                     appendIt();
                 }
             }
@@ -137,17 +139,31 @@ public class GroovyHtmlConverter {
                     readTag();
                 } else if (ch == '\n') {
                     ln();
+                } else if (ch == '@' && checkToken(state -> state.ch == '{')) {
+                    readTemplatePaste();
                 } else {
                     if (writeMode) {
                         finishWrite();
                     }
-                    if (ch == '$' && checkToken(state -> state.ch == '{')) {
-                        readEvaluation();
-                    } else if (ch == '"' && !last('\\')) {
+                    if (ch == '"' && !last('\\')) {
                         append().readString();
-                    } else {
+                    } else if (!tryEvaluation()) {
                         spaceInsert().append();
                     }
+                }
+            }
+            return this;
+        }
+
+        State readTemplatePaste() throws IOException {
+            if (!writeMode) {
+                append("_writer.write(\"");
+            }
+            while (read()) {
+                if (ch == '}' && !last('\\') && checkToken(state -> state.ch == '@')) {
+                    return this;
+                } else if (!tryEvaluation()) {
+                    appendIt();
                 }
             }
             return this;
@@ -163,9 +179,17 @@ public class GroovyHtmlConverter {
             return this;
         }
 
+        boolean tryEvaluation() throws IOException {
+            if (ch == '$' && checkToken(state -> state.ch == '{')) {
+                readEvaluation();
+                return true;
+            }
+            return false;
+        }
+
         State readEvaluation() throws IOException {
             if (writeMode) {
-                append("\")\n");
+                spaceInsert().append("\")\n");
             }
             append("_writer.write(");
             while (read()) {
@@ -187,8 +211,8 @@ public class GroovyHtmlConverter {
         State appendIt() {
             if (ch == '\n') {
                 ln();
-            } else if (ch == ' ') {
-                space++;
+            } else if (ch == ' ' || ch == '\t') {
+                indent.append(ch);
             } else if (ch == '"' && writeMode) {
                 append("\\\"");
             } else {

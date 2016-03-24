@@ -9,13 +9,14 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class GroovyHtmlViewLoaderTest {
+public class GrutViewLoaderTest {
 
     @Test
     public void testGet() throws Exception {
-        GroovyHtmlViewLoader viewLoader = new GroovyHtmlViewLoader(
-                GroovyViewLoaderTest.class.getResource("/simpleTest.ghtml").toURI());
+        GrutViewLoader viewLoader = new GrutViewLoader(
+                GroovyViewLoaderTest.class.getResource("/simpleTest.gr").toURI());
         JugView view = viewLoader.get("simpleTest");
+        view.var("body", "test");
         assertNotNull(view);
         StringWriter writer = new StringWriter();
         view.writeTo(writer);

@@ -1,6 +1,6 @@
 
 configure(allprojects) {
-    group 'com.epam.jugroote'
+    group 'com.epam.grut'
     version '0.1-SNAPSHOT'
 
     apply plugin: 'java'
@@ -19,7 +19,7 @@ configure(allprojects) {
     }
 }
 
-configure(":jugroote") {
+configure(":grut") {
     dependencies {
         compile 'org.codehaus.groovy:groovy-all:2.4.6'
     }

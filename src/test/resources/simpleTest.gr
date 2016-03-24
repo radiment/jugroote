@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head class="too">
+    <title>${"ghtml"}</title>
+</head>
+if (binding.hasVariable("body") || binding.hasVariable("<test>")) {
+  <body class="${body}">
+    def length = "test".length()
+    ${length}
+    def bla = "bla"
+    if (body.length() > 0 && body.length() < 15) {
+        ${body}
+        ${"test{$bla</test>"} 
+
+    }
+  <div class="test">
+    
+  </div>
+  <script type="application/javascript">
+    @{
+      var a = 1;
+      a += ${body}
+      for (var i = 0; i < 10; i++) {
+
+      }
+    }@
+    ${body}
+    def a = 1;
+
+  </script>
+  </body>
+}
+</html>
+
+
