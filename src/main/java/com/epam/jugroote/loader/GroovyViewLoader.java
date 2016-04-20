@@ -1,7 +1,7 @@
 package com.epam.jugroote.loader;
 
-import com.epam.jugroote.JugTemplate;
-import com.epam.jugroote.JugView;
+import com.epam.jugroote.GrutTemplate;
+import com.epam.jugroote.GrutView;
 import com.epam.jugroote.ViewLoader;
 import com.epam.jugroote.util.ConfigurationException;
 import groovy.lang.GroovyCodeSource;
@@ -18,10 +18,10 @@ public class GroovyViewLoader implements ViewLoader {
     }
 
     @Override
-    public JugView get(String name) {
+    public GrutView get(String name) {
         try {
             GroovyCodeSource script = new GroovyCodeSource(baseUri.resolve(name + ".groovy"));
-            return new JugView(new JugTemplate(name, script));
+            return new GrutView(new GrutTemplate(name, script));
         } catch (IOException e) {
             throw new ConfigurationException("Read script error: ", e);
         }

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${title}</title>
+</head>
+<body>
+  @{This is main template}@
+  <div style="background: gray">
+      data();
+  </div>
+</body>
+</html>

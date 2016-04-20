@@ -1,6 +1,6 @@
 package com.epam.jugroote.loader;
 
-import com.epam.jugroote.JugView;
+import com.epam.jugroote.GrutView;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -15,7 +15,7 @@ public class GrutViewLoaderTest {
     public void testGet() throws Exception {
         GrutViewLoader viewLoader = new GrutViewLoader(
                 GroovyViewLoaderTest.class.getResource("/simpleTest.gr").toURI());
-        JugView view = viewLoader.get("simpleTest");
+        GrutView view = viewLoader.get("simpleTest");
         view.var("body", "test");
         assertNotNull(view);
         StringWriter writer = new StringWriter();

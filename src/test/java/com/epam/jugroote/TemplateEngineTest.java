@@ -13,9 +13,10 @@ public class TemplateEngineTest {
     @Test
     public void testGet() {
         String name = "simple";
-        JugView view = mock(JugView.class);
+        GrutView view = mock(GrutView.class);
+        when(view.var(any(), any())).thenReturn(view);
         when(viewLoader.get(name)).thenReturn(view);
-        JugView simple = engine.get(name);
+        GrutView simple = engine.get(name);
         assertEquals(view, simple);
     }
 

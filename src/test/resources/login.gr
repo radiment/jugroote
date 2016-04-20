@@ -1,0 +1,6 @@
+template("template", title: "login", data: {
+  <div>
+        <input type="text" name="login"/>
+        <input type="password" name="password"/>
+  </div>
+})

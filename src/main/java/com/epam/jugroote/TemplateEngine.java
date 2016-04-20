@@ -8,11 +8,11 @@ public class TemplateEngine {
         this.loader = loader;
     }
 
-    public JugView get(String name) {
-        JugView view = loader.get(name);
+    public GrutView get(String name) {
+        GrutView view = loader.get(name);
         if (view == null) {
             throw new IllegalArgumentException("Template with name '" + name + "' not found");
         }
-        return view;
+        return view.var("_engine", this);
     }
 }

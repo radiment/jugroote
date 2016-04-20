@@ -2,11 +2,11 @@ package com.epam.jugroote;
 
 import groovy.lang.GroovyCodeSource;
 
-public class JugTemplate {
+public class GrutTemplate {
     private String name;
     private GroovyCodeSource codeSource;
 
-    public JugTemplate(String name, GroovyCodeSource codeSource) {
+    public GrutTemplate(String name, GroovyCodeSource codeSource) {
         this.name = name;
         this.codeSource = codeSource;
     }
